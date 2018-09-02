@@ -25,11 +25,53 @@ const generateBombBoard = (numberOfRows, numberOfColumns, numberOfBombs) => {
     //do not allow bombs to be placed on top of existing bomb
     let randomRowIndex = Math.floor(Math.random() * numberOfRows);
     let randomColumnIndex = Math.floor(Math.random() * numberOfColumns);
-    board[randomRowIndex][randomColumnIndex] = "B";
-    numberOfBombsPlaced++;
+    if(board[randomRowIndex][randomColumnIndex] !== "B") {
+      board[randomRowIndex][randomColumnIndex] = "B";
+      numberOfBombsPlaced++;
+    }
   }
 
   return board;
+};
+
+const getNumberOfNeighborBombs = (bombBoard, rowIndex, columnIndex) => {
+  const neighborOffsets = [
+    [-1,-1],
+    [-1,0],
+    [1,-1],
+    [0,-1],
+    [0,1],
+    [1,-1],
+    [1,0],
+    [1,1]
+  ];
+
+  const numberOfRows = bombBoard.length;
+  const numberOfColumns = bombBoard[0].length;
+  let numberOfBombs = 0;
+
+  neighborOffsets.forEach(offset => {
+    const neighborRowIndex = rowIndex + offset[0];
+    const neighborColumnIndex = columnIndex + offset[1];
+    if(neighborRowIndex >= 0 && neighborRowIndex < numberOfRows && neighborColumnIndex >= 0 && neighborColumnIndex < numberOfColumns) {
+      console.log(neighborRowIndex+","+neighborColumnIndex);
+      if(bombBoard[neighborRowIndex][neighborColumnIndex] === "B") {
+        numberOfBombs++;
+      }
+    }
+  });
+
+  return numberOfBombs;
+};
+
+const flipTile = (playerBoard, bombBoard, rowIndex, columnIndex) => {
+  if(playerBoard[rowIndex][columnIndex] !== ' ') {
+    return "This tile has already been flipped!";
+  } else if (bombBoard[rowIndex][columnIndex] === "B") {
+    playerBoard[rowIndex][columnIndex] = "B";
+  } else {
+    playerBoard[rowIndex][columnIndex] = getNumberOfNeighborBombs(bombBoard, rowIndex, columnIndex);
+  }
 };
 
 const printBoard = board => {
@@ -43,3 +85,6 @@ console.log("Player Board: ");
 printBoard(playerBoard);
 console.log("Bomb Board: ");
 printBoard(bombBoard);
+flipTile(playerBoard, bombBoard, 0, 0);
+console.log("Updated Player Board: ");
+printBoard(playerBoard);
